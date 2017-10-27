@@ -2,34 +2,9 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import logger from 'dev/logger';
 
-// Remove if you are not using server rendering
-// Also remove following packages from package.json
-// "express"
-// "transit-immutable-js"
-// "transit-js"
-// "nodemon"
-// "concurrently"
-import transit from 'transit-immutable-js';
-
-
 import rootReducer from 'reducers';
 
 const isProduction = process.env.NODE_ENV === 'production';
-
-// Remove if you are not using server rendering
-let INIT_STATE = null;
-
-// Remove if you are not using server rendering
-try {
-  INIT_STATE = __MARVIN_DEHYDRATED_STATE; // eslint-disable-line no-undef
-} catch (e) {
-  console.log('Mavin: No dehydrated state'); // eslint-disable-line no-console
-}
-
-// Remove if you are not using server rendering
-if (INIT_STATE) {
-  INIT_STATE = transit.fromJSON(INIT_STATE);
-}
 
 // Creating store
 export default () => {
@@ -53,20 +28,11 @@ export default () => {
     }
   }
 
-  // Add dehydrated state if any
-  if (INIT_STATE) {
-    // Remove if you are not using server rendering
-    store = createStore(
-      rootReducer,
-      INIT_STATE,
-      middleware
-    );
-  } else {
-    store = createStore(
-      rootReducer,
-      middleware
-    );
-  }
+  store = createStore(
+    rootReducer,
+    middleware
+  );
+
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
