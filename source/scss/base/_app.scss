@@ -1,0 +1,371 @@
+$font-family-serif: Garamond, "Times New Roman", serif;
+$font-family-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+$grey-border: #eee;
+$grey-text: #aaa;
+$black: #000;
+$white: #fff;
+
+html {
+  font-size: 10px;
+
+  @include lg {
+    font-size: 12px;
+  }
+
+  @include xl {
+    font-size: 14px;
+  }
+}
+
+body {
+  color: $black;
+  font-family: $font-family-sans-serif;
+}
+
+.App {
+  font-size: 1.8rem;
+  padding: 2rem;
+
+  @include md {
+    padding: 3rem;
+  }
+
+  @include md {
+    padding: 4rem;
+  }
+}
+
+a {
+  color: $grey-text;
+}
+
+a:hover {
+  color: $black;
+}
+
+h1,
+h2,
+h3 {
+  margin: 2rem 0;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.7rem;
+}
+
+button {
+  background: transparent;
+  border-radius: 1.6rem;
+  border: 0.1rem solid $black;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0.7rem 2rem;
+}
+
+button:disabled {
+  opacity: 0.3;
+}
+
+button:hover {
+  background: $white;
+}
+
+.Menu {
+  align-items: center;
+  border-bottom: 1px solid $grey-border;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+  margin: 0 auto 2rem;
+  max-width: 60rem;
+
+  @include lg {
+    margin-left: 20rem;
+    margin: 0 0 2rem 20rem;
+    padding-bottom: 0;
+  }
+}
+
+.Menu img {
+  display: block;
+}
+
+.Menu-logo {
+  margin-right: 2rem;
+  width: 6rem;
+
+  @include lg {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    border-right: 1px solid $grey-border;
+    width: 20rem;
+    padding: 4rem;
+  }
+}
+
+.Menu-links {
+  @include md {
+  }
+}
+
+.Menu-link {
+  display: inline-block;
+  font-family: $font-family-serif;
+  font-style: italic;
+  margin-left: 1.5rem;
+  line-height: 3rem;
+  text-decoration: none;
+
+  @include md {
+    margin-left: 3rem;
+  }
+
+  @include lg {
+    margin: 0 3rem 0 0;
+    line-height: 7.5rem;
+  }
+}
+
+.Menu-link--active {
+  color: $black;
+}
+
+.Page {
+  max-width: 60rem;
+  margin: 0 auto;
+
+  @include lg {
+    margin: 0 0 0 20rem;
+  }
+}
+
+.Example {
+  background: #F6F8FA;
+  padding: 2rem;
+  border-radius: 0.4rem;
+}
+
+.Example .Icon {
+  margin-right: 10px;
+}
+
+.BackgroundImgExample {
+  background-image: url(../assets/img/book1.jpg);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 16rem;
+  max-width: 25rem;
+}
+
+.ImgExample {
+  max-width: 25rem;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid $grey-border;
+  margin: 2rem 0;
+}
+
+
+.SlideOut-appear {
+  transform: translateX(30px);
+  color: red;
+}
+.SlideOut-appear.SlideOut-appear-active {
+  color: blue;
+  transform: translateX(0);;
+  transition: all 5s linear;
+}
+.SlideOut-enter {
+    transform: translateX(30px);
+}
+.SlideOut-enter.SlideOut-enter-active {
+    transform: translateX(0);
+    transition: 3s;
+}
+.SlideOut-leave {
+    opacity: 1.0;
+    transform: translateX(0);
+}
+.SlideOut-leave.SlideOut-leave-active {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    transform: translateX(-30px);
+    transition: all 7s linear;
+}
+
+.example-appear {
+  opacity: 0.01;
+}
+
+.example-appear.example-appear-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.example-enter {
+  opacity: 0.01;
+}
+
+.example-enter.example-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.example-leave {
+  opacity: 1;
+}
+
+.example-leave.example-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.initial {
+
+  width: 150px;
+  height: 100px;
+  background-color: red;
+  float: left;
+  border: solid 2px white;
+  box-sizing: border-box;
+}
+.container {
+  height: 100px;
+  overflow: hidden;
+}
+
+.box {
+
+  width: 150px;
+  height: 100px;
+  background-color: blue;
+  float: left;
+  border: solid 2px black;
+  box-sizing: border-box;
+  position: absolute;
+
+  right: 100px;
+}
+
+.box-appear {
+  opacity: 0.01;
+  width: 0px;
+  background-color: blue;
+  //height: 100px;
+}
+
+.box-appear.box-appear-active {
+  //transition: height 700ms 500ms, opacity 700ms 0ms;
+  opacity: 1;
+    width: 100px;
+    transition: 700ms;
+  //height: 200px;
+}
+.slide.active {
+  visibility: visible;
+}
+
+.slide.out-toRight {
+  animation: slideToRight 3s ease both;
+}
+
+.slide.in-fromLeft {
+animation: slideFromLeft 3s ease both;
+position: absolute;
+}
+
+.slide.out-toLeft {
+animation: slideToLeft 3s ease both;
+}
+
+.slide.in-fromRight {
+animation: slideFromRight 3s ease both;
+}
+@keyframes slideToLeft {
+  0% {
+    transform: translateX(0px);
+  //  visibility: visible;
+  }
+  100% {
+    transform: translateX(-200px);
+    //visibility: hidden;
+  }
+}
+@keyframes slideFromRight {
+  0% {
+    transform: translateX(200px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes slideFromLeft {
+  0% {
+    transform: translateX(-200px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes slideToRight {
+  0% {
+    transform: translateX(0);
+    //visibility: visible;
+  }
+  100% {
+    transform: translateX(200px);
+    //visibility: hidden;
+  }
+}
+.relativeDiv {
+  position: relative;
+}
+
+.container {
+  height: 100px;
+  //width: 200px;
+  //overflow: hidden;
+
+}
+
+.clearfix {
+  display: block;
+  clear: both;
+}
+
+.slide {
+  top: 0px;
+  height: 100px;
+  width: 200px;
+  border: 1px solid red;
+  display: inline-block;
+  margin-left: 0;
+}
+
+.active {
+  background-color: red;
+}
+
+.deactivate {
+   pointer-events: none;
+   cursor: pointer !important;
+}
+
+.invisible {
+  display: none !important;
+}
