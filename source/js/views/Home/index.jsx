@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import LazySlider from '../../components/Global/lazy-slider';
 
-export default class Home extends Component {
-
+class Home extends Component {
   render() {
+    const { slideView } = this.props.match.params;
     return (
       <div className='Home' key='home'>
         <LazySlider
-          slidesPerView={ 3 }
+          slidesPerView={ 7 }
           animationDuration={ 1000 }
           showNavigation={ true }
           showArrows={ true }
           autoplay={ false }
-          autoplayTurnTime={ 10000 }
-          loop={ false }
-          // activeIndex={ routerParametar }
-          // onChange={ (activeIndex) => {
-            // update route to activeIndex
-          // } }
+          autoplayTurnTime={ 1000 }
+          loop={ true }
+          activeIndex={ slideView }
+          onChange={ (activeIndex) => {
+            history.pushState(null, null, `/${ activeIndex }`);
+          } }
         >
           <div style={ { backgroundColor: 'blue', height: '200px' } }>name: prvi </div>
           <div style={ { backgroundColor: 'red', height: '200px' } }>name: drugi</div>
@@ -39,3 +40,5 @@ export default class Home extends Component {
     );
   }
 }
+
+export default withRouter(Home);

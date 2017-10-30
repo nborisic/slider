@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 
 class LazySlider extends Component {
   static propTypes = {
@@ -12,29 +11,33 @@ class LazySlider extends Component {
     autoplay: PropTypes.bool,
     loop: PropTypes.bool,
     autoplayTurnTime: PropTypes.number,
+    activeIndex: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+    onChange: PropTypes.func,
     children: PropTypes.array,
   }
 
   static defaultProps = {
     animationDuration: 500,
     slidesPerView: 1,
-    // activeIndex: 0,
+    activeIndex: 1,
     showNavigation: true,
     showArrows: true,
     loop: true,
-    // onChange: null,
+    onChange: null,
     autoplay: false,
     autoplayTurnTime: 7000,
   }
 
   constructor(props) {
     super(props);
-    const { match: { params: { slideView } }, slidesPerView, autoplay, autoplayTurnTime } = this.props;
-
-    const redirectIndex = slideView % slidesPerView ?
-      Math.floor(slideView / slidesPerView) * slidesPerView + 1 :
-      (Math.floor(slideView / slidesPerView) - 1) * slidesPerView + 1;
-    const newActiveIndex = (slideView > this.props.children.length || slideView < 0 || !slideView) ? 1 : redirectIndex;
+    const { slidesPerView, autoplay, autoplayTurnTime, activeIndex } = this.props;
+    const redirectIndex = activeIndex % slidesPerView ?
+      Math.floor(activeIndex / slidesPerView) * slidesPerView + 1 :
+      (Math.floor(activeIndex / slidesPerView) - 1) * slidesPerView + 1;
+    const newActiveIndex = (activeIndex > this.props.children.length || activeIndex < 0 || !activeIndex) ? 1 : redirectIndex;
     this.state = {
       activeIndex: newActiveIndex - 1,
       slides: this.props.children,
@@ -51,19 +54,17 @@ class LazySlider extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { match: { params: { slideView } }, animationDuration } = this.props;
-
-    this.setAnimation(nextProps.match.params, slideView);
-
+    const { animationDuration } = this.props;
+    this.setAnimation(nextProps.activeIndex, this.state.activeIndex + 1);
     this.setState({
-      jumpIndex: nextProps.match.params.slideView - 1,
+      jumpIndex: nextProps.activeIndex - 1,
     });
 
     setTimeout(() => {
       this.setState({
         jump: false,
         animate: null,
-        activeIndex: nextProps.match.params.slideView - 1,
+        activeIndex: nextProps.activeIndex - 1,
         shift: null,
       });
     }, animationDuration);
@@ -109,7 +110,7 @@ class LazySlider extends Component {
 
   changeSlide(offset) {
     const { animate, slides, activeIndex } = this.state;
-    const { animationDuration, slidesPerView } = this.props;
+    const { animationDuration, slidesPerView, onChange } = this.props;
     if (animate) {
       return;
     }
@@ -139,12 +140,13 @@ class LazySlider extends Component {
         shift: null,
       });
     }, animationDuration);
-
-    history.pushState(null, null, `/${ newIndex + 1 }`);
+    if (onChange) {
+      onChange(newUrlIndex);
+    }
   }
 
   boxJump(i) {
-    const { animationDuration, slidesPerView } = this.props;
+    const { animationDuration, slidesPerView, onChange } = this.props;
     const { activeIndex } = this.state;
     const newUrlIndex = i * slidesPerView + 1;
     const activeUrlIndex = activeIndex + 1;
@@ -163,7 +165,9 @@ class LazySlider extends Component {
       });
     }, animationDuration);
 
-    history.pushState(null, null, `/${ i * slidesPerView + 1 }`);
+    if (onChange) {
+      onChange(newUrlIndex);
+    }
   }
 
   jumpRender() {
@@ -356,4 +360,4 @@ class LazySlider extends Component {
     );
   }
 }
-export default withRouter(LazySlider);
+export default LazySlider;
