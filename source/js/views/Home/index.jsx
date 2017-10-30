@@ -15,9 +15,9 @@ export default class Home extends Component {
           autoplayTurnTime={ 10000 }
           loop={ false }
           // activeIndex={ routerParametar }
-          onChange={ (activeIndex) => {
+          // onChange={ (activeIndex) => {
             // update route to activeIndex
-          } }
+          // } }
         >
           <div style={ { backgroundColor: 'blue', height: '200px' } }>name: prvi </div>
           <div style={ { backgroundColor: 'red', height: '200px' } }>name: drugi</div>

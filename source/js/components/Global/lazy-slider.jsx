@@ -69,7 +69,7 @@ class LazySlider extends Component {
     }, animationDuration);
   }
 
-  setAnimation(newUrlIndex, activeUrlIndex, jumpIndexToBe) {
+  setAnimation(newUrlIndex, activeUrlIndex) {
     const { slidesPerView, loop } = this.props;
     const { slidesToRender, slides, activeIndex } = this.state;
     let animateSlide = (
@@ -77,34 +77,32 @@ class LazySlider extends Component {
       newUrlIndex - activeUrlIndex === slides.length - slidesPerView ||
       (activeUrlIndex - newUrlIndex !== slidesPerView && activeUrlIndex - newUrlIndex > 0 && activeUrlIndex < newUrlIndex)
     ) ? 'left' : 'right';
+    let shift = null;
+    let jump = false;
     // slucaj gde slider ulazi u loop
     if (loop) {
       const translateDistace = -(Math.floor(slidesToRender / 2) - Math.floor(slidesPerView / 2)) / slidesToRender * 100;
       if (activeUrlIndex > slides.length - slidesPerView + 1 && newUrlIndex <= slidesPerView) {
-        this.setState({
-          shift: `translateX(${ translateDistace - 1 / slidesToRender * 100 * (slides.length - activeUrlIndex + 1) }%)`,
-        });
+        shift = `translateX(${ translateDistace - 1 / slidesToRender * 100 * (slides.length - activeUrlIndex + 1) }%)`;
       } else if (Number(activeUrlIndex) === 1 && newUrlIndex >= slides.length - slidesPerView + 1) {
-        this.setState({
-          shift: `translateX(${ translateDistace + 1 / slidesToRender * 100 * (slides.length - (Math.ceil(slides.length / slidesPerView) - 1) * slidesPerView) }%)`,
-        });
+        shift = `translateX(${ translateDistace + 1 / slidesToRender * 100 * (slides.length - (Math.ceil(slides.length / slidesPerView) - 1) * slidesPerView) }%)`;
       } else if (activeUrlIndex <= slidesPerView && Number(activeUrlIndex) !== 1 && Number(newUrlIndex) === 1) {
-        this.setState({
-          shift: `translateX(${ translateDistace + 1 / slidesToRender * 100 * (activeUrlIndex - 1) }%)`,
-        });
+        shift = `translateX(${ translateDistace + 1 / slidesToRender * 100 * (activeUrlIndex - 1) }%)`;
       }
-    } else if (activeIndex === Math.floor(slides.length / slidesPerView) * slidesPerView || jumpIndexToBe < activeIndex) {
+    } else if (newUrlIndex - 1 < activeIndex) {
       animateSlide = 'left';
-    } else if (activeIndex === 0 || jumpIndexToBe > activeIndex) {
+    } else if (newUrlIndex - 1 > activeIndex) {
       animateSlide = 'right';
+    } else if (activeIndex === newUrlIndex - 1) {
+      animateSlide = null;
     }
 
     if (Math.abs(activeUrlIndex - newUrlIndex) - slidesPerView !== 0) {
-      this.setState({
-        jump: true,
-      });
+      jump = true;
     }
     this.setState({
+      jump,
+      shift,
       animate: animateSlide,
     });
   }
@@ -126,8 +124,8 @@ class LazySlider extends Component {
 
     const newUrlIndex = newIndex + 1;
     const activeUrlIndex = activeIndex + 1;
-    const jumpIndexToBe = newIndex;
-    this.setAnimation(newUrlIndex, activeUrlIndex, jumpIndexToBe);
+
+    this.setAnimation(newUrlIndex, activeUrlIndex);
 
     this.setState({
       jumpIndex: newIndex,
@@ -150,12 +148,11 @@ class LazySlider extends Component {
     const { activeIndex } = this.state;
     const newUrlIndex = i * slidesPerView + 1;
     const activeUrlIndex = activeIndex + 1;
-    const jumpIndexToBe = i * slidesPerView;
     this.setState({
-      jumpIndex: jumpIndexToBe,
+      jumpIndex: i * slidesPerView,
     });
 
-    this.setAnimation(newUrlIndex, activeUrlIndex, jumpIndexToBe);
+    this.setAnimation(newUrlIndex, activeUrlIndex);
 
     setTimeout(() => {
       this.setState({
