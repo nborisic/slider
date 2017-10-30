@@ -13,6 +13,7 @@ export default class Home extends Component {
           showArrows={ true }
           autoplay={ false }
           autoplayTurnTime={ 10000 }
+          loop={ false }
           // activeIndex={ routerParametar }
           onChange={ (activeIndex) => {
             // update route to activeIndex

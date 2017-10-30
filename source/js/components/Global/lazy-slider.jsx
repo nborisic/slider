@@ -10,6 +10,7 @@ class LazySlider extends Component {
     showNavigation: PropTypes.bool,
     showArrows: PropTypes.bool,
     autoplay: PropTypes.bool,
+    loop: PropTypes.bool,
     autoplayTurnTime: PropTypes.number,
     children: PropTypes.array,
   }
@@ -20,7 +21,7 @@ class LazySlider extends Component {
     // activeIndex: 0,
     showNavigation: true,
     showArrows: true,
-    // loop: true,
+    loop: true,
     // onChange: null,
     autoplay: false,
     autoplayTurnTime: 7000,
@@ -68,29 +69,34 @@ class LazySlider extends Component {
     }, animationDuration);
   }
 
-  setAnimation(newUrlIndex, activeUrlIndex) {
-    const { slidesPerView } = this.props;
-    const { slidesToRender, slides } = this.state;
-
-    const animateSlide = (
+  setAnimation(newUrlIndex, activeUrlIndex, jumpIndexToBe) {
+    const { slidesPerView, loop } = this.props;
+    const { slidesToRender, slides, activeIndex } = this.state;
+    let animateSlide = (
       activeUrlIndex - newUrlIndex === slidesPerView ||
       newUrlIndex - activeUrlIndex === slides.length - slidesPerView ||
       (activeUrlIndex - newUrlIndex !== slidesPerView && activeUrlIndex - newUrlIndex > 0 && activeUrlIndex < newUrlIndex)
     ) ? 'left' : 'right';
     // slucaj gde slider ulazi u loop
-    const translateDistace = -(Math.floor(slidesToRender / 2) - Math.floor(slidesPerView / 2)) / slidesToRender * 100;
-    if (activeUrlIndex > slides.length - slidesPerView + 1 && newUrlIndex <= slidesPerView) {
-      this.setState({
-        shift: `translateX(${ translateDistace - 1 / slidesToRender * 100 * (slides.length - activeUrlIndex + 1) }%)`,
-      });
-    } else if (Number(activeUrlIndex) === 1 && newUrlIndex >= slides.length - slidesPerView + 1) {
-      this.setState({
-        shift: `translateX(${ translateDistace + 1 / slidesToRender * 100 * (slides.length - (Math.ceil(slides.length / slidesPerView) - 1) * slidesPerView) }%)`,
-      });
-    } else if (activeUrlIndex <= slidesPerView && Number(activeUrlIndex) !== 1 && Number(newUrlIndex) === 1) {
-      this.setState({
-        shift: `translateX(${ translateDistace + 1 / slidesToRender * 100 * (activeUrlIndex - 1) }%)`,
-      });
+    if (loop) {
+      const translateDistace = -(Math.floor(slidesToRender / 2) - Math.floor(slidesPerView / 2)) / slidesToRender * 100;
+      if (activeUrlIndex > slides.length - slidesPerView + 1 && newUrlIndex <= slidesPerView) {
+        this.setState({
+          shift: `translateX(${ translateDistace - 1 / slidesToRender * 100 * (slides.length - activeUrlIndex + 1) }%)`,
+        });
+      } else if (Number(activeUrlIndex) === 1 && newUrlIndex >= slides.length - slidesPerView + 1) {
+        this.setState({
+          shift: `translateX(${ translateDistace + 1 / slidesToRender * 100 * (slides.length - (Math.ceil(slides.length / slidesPerView) - 1) * slidesPerView) }%)`,
+        });
+      } else if (activeUrlIndex <= slidesPerView && Number(activeUrlIndex) !== 1 && Number(newUrlIndex) === 1) {
+        this.setState({
+          shift: `translateX(${ translateDistace + 1 / slidesToRender * 100 * (activeUrlIndex - 1) }%)`,
+        });
+      }
+    } else if (activeIndex === Math.floor(slides.length / slidesPerView) * slidesPerView || jumpIndexToBe < activeIndex) {
+      animateSlide = 'left';
+    } else if (activeIndex === 0 || jumpIndexToBe > activeIndex) {
+      animateSlide = 'right';
     }
 
     if (Math.abs(activeUrlIndex - newUrlIndex) - slidesPerView !== 0) {
@@ -120,7 +126,8 @@ class LazySlider extends Component {
 
     const newUrlIndex = newIndex + 1;
     const activeUrlIndex = activeIndex + 1;
-    this.setAnimation(newUrlIndex, activeUrlIndex);
+    const jumpIndexToBe = newIndex;
+    this.setAnimation(newUrlIndex, activeUrlIndex, jumpIndexToBe);
 
     this.setState({
       jumpIndex: newIndex,
@@ -143,12 +150,12 @@ class LazySlider extends Component {
     const { activeIndex } = this.state;
     const newUrlIndex = i * slidesPerView + 1;
     const activeUrlIndex = activeIndex + 1;
-
-    this.setAnimation(newUrlIndex, activeUrlIndex);
-
+    const jumpIndexToBe = i * slidesPerView;
     this.setState({
-      jumpIndex: i * slidesPerView,
+      jumpIndex: jumpIndexToBe,
     });
+
+    this.setAnimation(newUrlIndex, activeUrlIndex, jumpIndexToBe);
 
     setTimeout(() => {
       this.setState({
@@ -164,7 +171,7 @@ class LazySlider extends Component {
 
   jumpRender() {
     const { slides, activeIndex, animate, jumpIndex, slidesToRender } = this.state;
-    const { slidesPerView } = this.props;
+    const { slidesPerView, loop } = this.props;
 
     const slideElements = [];
     const concatElements = [];
@@ -172,37 +179,64 @@ class LazySlider extends Component {
     const slideWidth = 1 / slidesToRender * slidesPerView * 100;
     for (let i = 0; i < slidesToRender; i++) {
       const slide = slides[(startIndex + i) % slides.length];
-      slideElements.push(
-        <div
-          style={
-          {
-            width: `${ slideWidth }%`,
-            height: 300,
+      if (startIndex + i >= 2 * slides.length && !loop) {
+        slideElements.push(
+          <div
+            style={
+            {
+              width: `${ slideWidth }%`,
+              height: 300,
+            }
           }
-        }
-          key={ startIndex + i }
-        >
-          { slide }
-        </div>
-      );
+            key={ `empty${ i }` }
+          />
+        );
+      } else {
+        slideElements.push(
+          <div
+            style={
+            {
+              width: `${ slideWidth }%`,
+              height: 300,
+            }
+          }
+            key={ startIndex + i }
+          >
+            { slide }
+          </div>
+        );
+      }
     }
     for (let i = 0; i < slidesPerView; i++) {
       const slide = slides[(jumpIndex + i) % slides.length];
-      concatElements.push(
-        <div
-          style={
-          {
-            width: `${ slideWidth }%`,
-            height: 300,
+      if (jumpIndex + i >= slides.length && !loop) {
+        concatElements.push(
+          <div
+            style={
+            {
+              width: `${ slideWidth }%`,
+              height: 300,
+            }
           }
-        }
-          key={ `jump${ i }` }
-        >
-          { slide }
-        </div>
-      );
+            key={ `empty${ i }` }
+          />
+        );
+      } else {
+        concatElements.push(
+          <div
+            style={
+            {
+              width: `${ slideWidth }%`,
+              height: 300,
+            }
+          }
+            key={ `jump${ i }` }
+          >
+            { slide }
+          </div>
+        );
+      }
     }
-
     const leftElements = slideElements.slice(0, 2 * slidesPerView);
     const rightElements = slideElements.slice(slidesPerView, 3 * slidesPerView);
     return animate === 'right' ? leftElements.concat(concatElements) : concatElements.concat(rightElements);
@@ -210,27 +244,41 @@ class LazySlider extends Component {
 
   renderSlides() {
     const { slides, activeIndex, slidesToRender } = this.state;
-    const { slidesPerView } = this.props;
+    const { slidesPerView, loop } = this.props;
 
     const slideElements = [];
 
-    const startIndex = slides.length - (Math.floor(slidesToRender / 2) - activeIndex) + Math.floor(slidesPerView / 2);
+    const startIndex = (slides.length - (Math.floor(slidesToRender / 2) - activeIndex) + Math.floor(slidesPerView / 2));
     const slideWidth = 1 / slidesToRender * slidesPerView * 100;
     for (let i = 0; i < slidesToRender; i++) {
       const slide = slides[(startIndex + i) % slides.length];
-      slideElements.push(
-        <div
-          style={
-          {
-            width: `${ slideWidth }%`,
-            height: 300,
+      if (startIndex + i >= 2 * slides.length && !loop) {
+        slideElements.push(
+          <div
+            style={
+            {
+              width: `${ slideWidth }%`,
+              height: 300,
+            }
           }
-        }
-          key={ i }
-        >
-          { slide }
-        </div>
-      );
+            key={ i }
+          />
+        );
+      } else {
+        slideElements.push(
+          <div
+            style={
+            {
+              width: `${ slideWidth }%`,
+              height: 300,
+            }
+          }
+            key={ i }
+          >
+            { slide }
+          </div>
+        );
+      }
     }
     return slideElements;
   }
@@ -258,8 +306,8 @@ class LazySlider extends Component {
   }
 
   render() {
-    const { animate, shift, slidesToRender } = this.state;
-    const { animationDuration, slidesPerView, showNavigation, showArrows, autoplay, autoplayTurnTime } = this.props;
+    const { animate, shift, slidesToRender, activeIndex, slides } = this.state;
+    const { animationDuration, slidesPerView, showNavigation, showArrows, autoplay, autoplayTurnTime, loop } = this.props;
 
     const translateDistace = -(Math.floor(slidesToRender / 2) - Math.floor(slidesPerView / 2)) / slidesToRender * 100;
     let transform = `translateX(${ translateDistace }%)`;
@@ -276,9 +324,7 @@ class LazySlider extends Component {
     } else if (animate) {
       boxClassName = 'deactivate';
     }
-
     const intervalProps = autoplay ? { onMouseEnter: () => clearInterval(this.slideInterval), onMouseLeave: () => this.slideInterval = setInterval(() => this.changeSlide(slidesPerView), autoplayTurnTime) } : {};
-
     return (
       <div id='slider'>
         <div style={ { width: '100%', overflow: 'hidden' } }>
@@ -299,12 +345,12 @@ class LazySlider extends Component {
         </div>
         <div className={ showArrows ? '' : 'invisible' }>
           <button
-            onClick={ () => this.changeSlide(-slidesPerView) }
+            onClick={ (activeIndex - slidesPerView < 0 && !loop) ? '' : () => this.changeSlide(-slidesPerView) }
             { ...intervalProps }
           >prev
           </button>
           <button
-            onClick={ () => this.changeSlide(slidesPerView) }
+            onClick={ (activeIndex + slidesPerView >= slides.length && !loop) ? '' : () => this.changeSlide(slidesPerView) }
             { ...intervalProps }
           >next
           </button>
